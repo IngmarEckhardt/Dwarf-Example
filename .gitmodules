@@ -1,0 +1,3 @@
+[submodule "extern/dwarf-os"]
+	path = extern/dwarf-os
+	url = https://github.com/IngmarEckhardt/dwarfOS
