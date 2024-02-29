@@ -52,8 +52,8 @@ add_definitions(-D_TIME_T_DEFINED)
 add_definitions(-DDWARF_TIME)
 add_subdirectory(${EXTERN_PATH}/dwarf-os extern_build)
 
-set(SRC_FILES ${SRC_FILES} "${SRC_PATH}/main.c")
-add_executable(${PROJECT_NAME} ${SRC_FILES})
+
+add_executable(${PROJECT_NAME} ${SRC_FILES} "${SRC_PATH}/standard_example.c")
 target_include_directories(${PROJECT_NAME} PUBLIC ${INCL_PATH})
 target_link_libraries(${PROJECT_NAME} DwarfOS)
 set_target_properties(${PROJECT_NAME} PROPERTIES OUTPUT_NAME "${PROJECT_NAME}.elf")
@@ -63,6 +63,13 @@ add_custom_target(hex "${AVR_OBJCOPY}" -O ihex -R .eeprom -R .fuse -R .lock -R .
         "${PROJECT_NAME}.elf" "${PROJECT_NAME}.hex")
 # display size of solution
 add_custom_target(size "${AVR_SIZE}" "${PROJECT_NAME}.elf")
+
+set(MODDED_FCT ${PROJECT_NAME}_modded)
+
+add_executable(${MODDED_FCT} ${SRC_FILES} "${SRC_PATH}/modded_functions_example.c")
+target_include_directories(${MODDED_FCT} PUBLIC ${INCL_PATH})
+target_link_libraries(${MODDED_FCT} DwarfOS)
+set_target_properties(${MODDED_FCT} PROPERTIES OUTPUT_NAME "${MODDED_FCT}.elf")
 
 set_directory_properties(PROPERTIES
         ADDITIONAL_MAKE_CLEAN_FILES "${PROJECT_NAME}.hex;${PROJECT_NAME}.eeprom;${PROJECT_NAME}.lst")
