@@ -71,5 +71,15 @@ target_include_directories(${MODDED_FCT} PUBLIC ${INCL_PATH})
 target_link_libraries(${MODDED_FCT} DwarfOS)
 set_target_properties(${MODDED_FCT} PROPERTIES OUTPUT_NAME "${MODDED_FCT}.elf")
 
+
+set(INPUTQUEUE_STDIN ${PROJECT_NAME}_with_stdin)
+
+add_executable(${INPUTQUEUE_STDIN} ${SRC_FILES} "${SRC_PATH}/inputqueue_as_stdin_example.c")
+target_include_directories(${INPUTQUEUE_STDIN} PUBLIC ${INCL_PATH})
+target_link_libraries(${INPUTQUEUE_STDIN} DwarfOS)
+set_target_properties(${INPUTQUEUE_STDIN} PROPERTIES OUTPUT_NAME "${INPUTQUEUE_STDIN}.elf")
+
+
+
 set_directory_properties(PROPERTIES
         ADDITIONAL_MAKE_CLEAN_FILES "${PROJECT_NAME}.hex;${PROJECT_NAME}.eeprom;${PROJECT_NAME}.lst")

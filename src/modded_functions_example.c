@@ -7,8 +7,8 @@
 #include <ascii_helper.h>
 #include <mcu_clock.h>
 #include <uart_helper.h>
-#include "time.h"
-#include "heap_management_helper.h"
+#include <time.h>
+#include <heap_management_helper.h>
 
 McuClock * mcuClock;
 AsciiHelper * asciiHelper;

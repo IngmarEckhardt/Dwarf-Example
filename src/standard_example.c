@@ -8,7 +8,7 @@
 #include <mcu_clock.h>
 #include <uart_helper.h>
 #include <heap_management_helper.h>
-#include "time.h"
+#include <time.h>
 
 McuClock * mcuClock;
 volatile uint8_t adJust16MhzToSecond = 0;
