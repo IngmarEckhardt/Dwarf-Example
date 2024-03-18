@@ -79,7 +79,7 @@ void printToSerialOutput(void) {
             if (lastTime % 2) {
                 char * actionString = malloc(LONG_LOCATION_126_STRING_LENGTH + 1);
 #ifdef __AVR_HAVE_ELPM__
-                flashHelper->loadFarStringFromFlash(memoryString, pgm_get_far_address(longLocation_126))
+                flashHelper->loadFarStringFromFlash(actionString, pgm_get_far_address(longLocation_126))
 #else
                 flashHelper->loadNearStringFromFlash(actionString, longLocation_126);
 #endif
@@ -88,7 +88,7 @@ void printToSerialOutput(void) {
             } else {
                 char * action2String = malloc(ACTION_142_STRING_LENGTH + 1);
 #ifdef __AVR_HAVE_ELPM__
-                flashHelper->loadFarStringFromFlash(memoryString, pgm_get_far_address(action_142))
+                flashHelper->loadFarStringFromFlash(action2String, pgm_get_far_address(action_142))
 #else
                 flashHelper->loadNearStringFromFlash(action2String, action_142);
 #endif
