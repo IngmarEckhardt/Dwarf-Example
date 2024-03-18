@@ -56,7 +56,6 @@ const __attribute__((__progmem__)) char action_142[ACTION_142_STRING_LENGTH] = "
 
 void printToSerialOutput(void) {
     HeapManagementHelper * heapHelper = dOS_initHeapManagementHelper();
-    // result 2003 byte on AtMega328p, overhead incl heapHelper only 45byte
     if (heapHelper) {
         int16_t memoryAmount = heapHelper->getFreeMemory();
 
@@ -65,33 +64,41 @@ void printToSerialOutput(void) {
 
         if (memoryString) {
             FlashHelper * flashHelper = dOS_initFlashHelper();
+            // getter far Progmem Strings, if you know which device your code is running, you don't need these ugly ifdef.
+            // I always try to avoid it, but this example should run on every avr
 #ifdef __AVR_HAVE_ELPM__
             if(flashHelper) {
-            flashHelper->loadFarStringFromFlash(memoryString, pgm_get_far_address(memoryStringOnFlash));
-            }
-#else
+                flashHelper->loadFarStringFromFlash(memoryString, pgm_get_far_address(memoryStringOnFlash));
+            } else { return;}
+#else // we use the getter that work with 16bit pointern, we check if init is failing just to make it a reflex.
             if (flashHelper) {
                 flashHelper->loadNearStringFromFlash(memoryString, memoryStringOnFlash);
-
-            }
+            } else { return;}
 #endif
-            free(flashHelper);
 
             if (lastTime % 2) {
-
                 char * actionString = malloc(LONG_LOCATION_126_STRING_LENGTH + 1);
+#ifdef __AVR_HAVE_ELPM__
+                flashHelper->loadFarStringFromFlash(memoryString, pgm_get_far_address(longLocation_126))
+#else
                 flashHelper->loadNearStringFromFlash(actionString, longLocation_126);
+#endif
                 printf("%s", actionString);
                 free(actionString);
             } else {
                 char * action2String = malloc(ACTION_142_STRING_LENGTH + 1);
+#ifdef __AVR_HAVE_ELPM__
+                flashHelper->loadFarStringFromFlash(memoryString, pgm_get_far_address(action_142))
+#else
                 flashHelper->loadNearStringFromFlash(action2String, action_142);
+#endif
                 printf("%s", action2String);
                 free(action2String);
             }
             char * timestamp = ctime(NULL);
-            printf("%s:%s%d\n", timestamp,memoryString,memoryAmount);
+            printf("%s:%s%d\n", timestamp, memoryString, memoryAmount);
             free(timestamp);
+            free(flashHelper);
         }
         free(memoryString);
     }
@@ -112,6 +119,7 @@ int put_char(char c, FILE * stream) {
     return 0;
 }
 
+// the example only need a stdout
 static FILE myStdOut = FDEV_SETUP_STREAM(put_char, NULL, _FDEV_SETUP_WRITE);
 
 
@@ -120,7 +128,4 @@ void setup(void) {
 
     uartHelper = dOS_initUartHelper();
     stdout = &myStdOut;
-
-    // Enable receiver and transmitter and Interrupt additionally
-    UCSR0B = (1 << RXEN0) | (1 << TXEN0) | (1 << RXCIE0);
 }
