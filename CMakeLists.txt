@@ -86,5 +86,12 @@ target_include_directories(${SEND_LARGE_FILES_WITH_ATMEGA328} PUBLIC ${INCL_PATH
 target_link_libraries(${SEND_LARGE_FILES_WITH_ATMEGA328} DwarfOS)
 set_target_properties(${SEND_LARGE_FILES_WITH_ATMEGA328} PROPERTIES OUTPUT_NAME "${SEND_LARGE_FILES_WITH_ATMEGA328}.elf")
 
+set(PUTS_P ${PROJECT_NAME}_puts_p)
+
+add_executable(${PUTS_P} ${SRC_FILES} "${SRC_PATH}/puts_p_example.c")
+target_include_directories(${PUTS_P} PUBLIC ${INCL_PATH})
+target_link_libraries(${PUTS_P} DwarfOS)
+set_target_properties(${PUTS_P} PROPERTIES OUTPUT_NAME "${PUTS_P}.elf")
+
 set_directory_properties(PROPERTIES
         ADDITIONAL_MAKE_CLEAN_FILES "${PROJECT_NAME}.hex;${PROJECT_NAME}.eeprom;${PROJECT_NAME}.lst")
