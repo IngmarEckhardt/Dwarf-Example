@@ -98,7 +98,7 @@ void setup(void) {
     setupMcu(&mcuClock); // general setup DwarfOS
 
     uartHelper = dOS_initUartHelper();
-    inputQueue = cca_initInputQueue(&adjustCounter);
+    inputQueue = dOS_initInputQueue();
     heapHelper = dOS_initHeapManagementHelper();
     stdin = &myStdIn;
     stdout = &myStdOut;
