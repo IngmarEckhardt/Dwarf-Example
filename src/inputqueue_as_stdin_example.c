@@ -58,6 +58,8 @@ ISR(USART_RX_vect) { putIntoQueue(UDR0); }
 void printToSerialOutput(void) {
     stringReadFromUser[0] = '\0';   // clearing the string
 
+    printf("Please Enter a text and send \\n at the end:\n(this inputqueue is blocking as a normal terminal stdin)\n");
+    
     // CAVE: if the user don't send a \n over the serial as line feed, null termination of string with fgets won't work
     fgets(stringReadFromUser, STRING_BUFFER_SIZE, stdin); // lore ipsum 36 words fits into the input queue
     timestamp = ctime(NULL);
