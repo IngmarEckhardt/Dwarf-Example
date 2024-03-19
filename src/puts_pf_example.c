@@ -48,7 +48,6 @@ int main(void) {
     }
 }
 
-int16_t puts_PF(uint32_t farPointerToString);
 
 ISR(TIMER2_OVF_vect) { adjustCounter++; }
 
@@ -56,8 +55,7 @@ ISR(TIMER2_OVF_vect) { adjustCounter++; }
 #define MEMORY_STRING_LENGTH 26
 const __attribute__((__progmem__)) char memoryStringOnFlash[MEMORY_STRING_LENGTH] = ": free Memory is (byte): ";
 
-
-        int16_t puts_PF(uint32_t farPointerToString) { //Should be possible to check if this is really a far pointer with a check for a flag-bit
+int16_t puts_PF(uint32_t farPointerToString) {//Should be possible to check if this is a far pointer with a flag-bit
     char charToPut = 0;
     while ((charToPut = (char) pgm_read_byte_far(farPointerToString))) {
         if ((stdout->flags & __SWR) != 0) {
@@ -71,31 +69,42 @@ const __attribute__((__progmem__)) char memoryStringOnFlash[MEMORY_STRING_LENGTH
     return 0;
 }
 
+const char formatStr[] = "%s:%s%d\n";
 void printToSerialOutput(void) {
     HeapManagementHelper * heapHelper = dOS_initHeapManagementHelper();
     if (heapHelper) {
         int16_t memoryAmount = heapHelper->getFreeMemory();
+
         char * memoryString = malloc(MEMORY_STRING_LENGTH + 1);
         FlashHelper * flashHelper = dOS_initFlashHelper();
-        if (memoryString && flashHelper) {
+        char * timestamp = ctime(NULL);
+
+        if (memoryString && flashHelper && timestamp) {
+            
             flashHelper->loadNearStringFromFlash(memoryString, memoryStringOnFlash);
-                //32kB each string
-                puts_PF(pgm_get_far_address(loreIpsum1));
-                puts_PF(pgm_get_far_address(loreIpsum2));
-                puts_PF(pgm_get_far_address(loreIpsum3));
-                puts_PF(pgm_get_far_address(loreIpsum4));
-                puts_PF(pgm_get_far_address(loreIpsum5));
-                puts_PF(pgm_get_far_address(loreIpsum6));
-                puts_PF(pgm_get_far_address(loreIpsum7));
+            printf(formatStr, timestamp, memoryString, memoryAmount);
+
+            //32kB each string
+            puts_PF(pgm_get_far_address(loreIpsum1));
+            //no changes in the situation behind this first check
+            memoryAmount = heapHelper->getFreeMemory();
+            printf(formatStr, timestamp, memoryString, memoryAmount);
+
+            puts_PF(pgm_get_far_address(loreIpsum2));
+            puts_PF(pgm_get_far_address(loreIpsum3));
+            puts_PF(pgm_get_far_address(loreIpsum4));
+            puts_PF(pgm_get_far_address(loreIpsum5));
+            puts_PF(pgm_get_far_address(loreIpsum6));
+            puts_PF(pgm_get_far_address(loreIpsum7));
+
+            // still no changes, but why not, we check again
+            memoryAmount = heapHelper->getFreeMemory();
+            printf(formatStr, timestamp, memoryString, memoryAmount);
 
 
-
-
-            char * timestamp = ctime(NULL);
-            printf("%s:%s%d\n", timestamp, memoryString, memoryAmount);
-            free(timestamp);
-            free(flashHelper);
         }
+        free(timestamp);
+        free(flashHelper);
         free(memoryString);
     }
     free(heapHelper);
