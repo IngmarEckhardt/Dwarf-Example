@@ -1,9 +1,9 @@
-//#ifndef __AVR_HAVE_ELPM__ // example dont uses far pointers, works only for devices with < 64kB
 #include <avr/sleep.h>
 #include <avr/interrupt.h>
 #include <avr/io.h>
 #include <stdio.h>
 #include <avr/pgmspace.h>
+
 //DwarfOS
 #include <setup.h>
 #include <mcu_clock.h>
@@ -12,8 +12,7 @@
 #include <heap_management_helper.h>
 #include <time.h>
 
-#include "lore_ipsum.h"
-
+#include "lorem_ipsum.h"
 
 void setup(void);
 
@@ -27,7 +26,6 @@ UartHelper * uartHelper;
 const uint8_t adjustToSecondValue = ADJUST_TO_SECOND_VALUE;
 uint8_t lastTime;
 volatile uint8_t adjustCounter;
-
 
 int main(void) {
 
@@ -80,22 +78,22 @@ void printToSerialOutput(void) {
         char * timestamp = ctime(NULL);
 
         if (memoryString && flashHelper && timestamp) {
-            
+
             flashHelper->loadNearStringFromFlash(memoryString, memoryStringOnFlash);
             printf(formatStr, timestamp, memoryString, memoryAmount);
 
             //32kB each string
-            puts_PF(pgm_get_far_address(loreIpsum1));
+            puts_PF(pgm_get_far_address(loremIpsum1));
             //no changes in the situation behind this first check
             memoryAmount = heapHelper->getFreeMemory();
             printf(formatStr, timestamp, memoryString, memoryAmount);
 
-            puts_PF(pgm_get_far_address(loreIpsum2));
-            puts_PF(pgm_get_far_address(loreIpsum3));
-            puts_PF(pgm_get_far_address(loreIpsum4));
-            puts_PF(pgm_get_far_address(loreIpsum5));
-            puts_PF(pgm_get_far_address(loreIpsum6));
-            puts_PF(pgm_get_far_address(loreIpsum7));
+            puts_PF(pgm_get_far_address(loremIpsum2));
+            puts_PF(pgm_get_far_address(loremIpsum3));
+            puts_PF(pgm_get_far_address(loremIpsum4));
+            puts_PF(pgm_get_far_address(loremIpsum5));
+            puts_PF(pgm_get_far_address(loremIpsum6));
+            puts_PF(pgm_get_far_address(loremIpsum7));
 
             // still no changes, but why not, we check again
             memoryAmount = heapHelper->getFreeMemory();
@@ -133,4 +131,3 @@ void setup(void) {
     uartHelper = dOS_initUartHelper();
     stdout = &myStdOut;
 }
-//#endif
