@@ -24,7 +24,7 @@ InputQueue * inputQueue;
 UartHelper * uartHelper;
 HeapManagementHelper * heapHelper;
 
-#define STRING_BUFFER_SIZE 81
+#define STRING_BUFFER_SIZE 255
 const uint8_t adjustToSecondValue = ADJUST_TO_SECOND_VALUE;
 uint8_t lastTime;
 char * stringReadFromUser;
@@ -59,7 +59,7 @@ void printToSerialOutput(void) {
     stringReadFromUser[0] = '\0';   // clearing the string
 
     printf("Please Enter a text and send \\n at the end:\n(this inputqueue is blocking as a normal terminal stdin)\n");
-    
+
     // CAVE: if the user don't send a \n over the serial as line feed, null termination of string with fgets won't work
     fgets(stringReadFromUser, STRING_BUFFER_SIZE, stdin); // lore ipsum 36 words fits into the input queue
     timestamp = ctime(NULL);
