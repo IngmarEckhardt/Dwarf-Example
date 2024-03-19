@@ -1,7 +1,9 @@
 cmake_minimum_required(VERSION 3.27)
 set(CMAKE_SYSTEM_NAME Generic)
 set(CMAKE_C_STANDARD 99)
-set(MCU atmega328p)
+if (NOT DEFINED MCU)
+    set(MCU atmega328p)
+endif ()
 
 # If you are using Atmel/Microchip Studio, create a new project and move these project files into this folder.
 # Ensure that you include all the files and set "non-project" files to be visible.
@@ -92,6 +94,15 @@ add_executable(${PUTS_P} ${SRC_FILES} "${SRC_PATH}/puts_p_example.c")
 target_include_directories(${PUTS_P} PUBLIC ${INCL_PATH})
 target_link_libraries(${PUTS_P} DwarfOS)
 set_target_properties(${PUTS_P} PROPERTIES OUTPUT_NAME "${PUTS_P}.elf")
+
+
+
+set(PUTS_PF ${PROJECT_NAME}_puts_pf)
+
+add_executable(${PUTS_PF} ${SRC_FILES} "${SRC_PATH}/puts_pf_example.c")
+target_include_directories(${PUTS_PF} PUBLIC ${INCL_PATH})
+target_link_libraries(${PUTS_PF} DwarfOS)
+set_target_properties(${PUTS_PF} PROPERTIES OUTPUT_NAME "${PUTS_PF}.elf")
 
 set_directory_properties(PROPERTIES
         ADDITIONAL_MAKE_CLEAN_FILES "${PROJECT_NAME}.hex;${PROJECT_NAME}.eeprom;${PROJECT_NAME}.lst")
