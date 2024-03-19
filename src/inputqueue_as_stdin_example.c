@@ -4,12 +4,12 @@
 #include <stdio.h>
 
 //DwarfOS
-#include <setup.h>
-#include <mcu_clock.h>
-#include <uart_helper.h>
-#include <heap_management_helper.h>
-#include <time.h>
-#include <input_queue.h>
+#include <dwarf-os/setup.h>
+#include <dwarf-os/mcu_clock.h>
+#include <dwarf-os/uart_helper.h>
+#include <dwarf-os/heap_management_helper.h>
+#include <dwarf-os/time.h>
+#include <dwarf-os/input_queue.h>
 
 void setup(void);
 

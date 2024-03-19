@@ -3,12 +3,12 @@
 #include <avr/io.h>
 
 //DwarfOS
-#include <setup.h>
-#include <ascii_helper.h>
-#include <mcu_clock.h>
-#include <uart_helper.h>
-#include <time.h>
-#include <heap_management_helper.h>
+#include <dwarf-os/setup.h>
+#include <dwarf-os/ascii_helper.h>
+#include <dwarf-os/mcu_clock.h>
+#include <dwarf-os/uart_helper.h>
+#include <dwarf-os/time.h>
+#include <dwarf-os/heap_management_helper.h>
 
 McuClock * mcuClock;
 AsciiHelper * asciiHelper;

@@ -1,3 +1,4 @@
+#ifdef __AVR_HAVE_ELPM__
 #include <avr/sleep.h>
 #include <avr/interrupt.h>
 #include <avr/io.h>
@@ -5,12 +6,13 @@
 #include <avr/pgmspace.h>
 
 //DwarfOS
-#include <setup.h>
-#include <mcu_clock.h>
-#include <uart_helper.h>
-#include <flash_helper.h>
-#include <heap_management_helper.h>
-#include <time.h>
+#include <dwarf-os/setup.h>
+#include <dwarf-os/mcu_clock.h>
+#include <dwarf-os/uart_helper.h>
+#include <dwarf-os/flash_helper.h>
+#include <dwarf-os/heap_management_helper.h>
+#include <dwarf-os/stdio.h>
+#include <dwarf-os/time.h>
 
 #include "lorem_ipsum.h"
 
@@ -53,21 +55,8 @@ ISR(TIMER2_OVF_vect) { adjustCounter++; }
 #define MEMORY_STRING_LENGTH 26
 const __attribute__((__progmem__)) char memoryStringOnFlash[MEMORY_STRING_LENGTH] = ": free Memory is (byte): ";
 
-int16_t puts_PF(uint32_t farPointerToString) {//Should be possible to check if this is a far pointer with a flag-bit
-    char charToPut = 0;
-    while ((charToPut = (char) pgm_read_byte_far(farPointerToString))) {
-        if ((stdout->flags & __SWR) != 0) {
-            if ((stdout->put(charToPut, stdout) != 0)) {
-                return EOF;
-            } else {
-                farPointerToString++;
-            }
-        }
-    }
-    return 0;
-}
-
 const char formatStr[] = "%s:%s%d\n";
+
 void printToSerialOutput(void) {
     HeapManagementHelper * heapHelper = dOS_initHeapManagementHelper();
     if (heapHelper) {
@@ -131,3 +120,6 @@ void setup(void) {
     uartHelper = dOS_initUartHelper();
     stdout = &myStdOut;
 }
+#else
+int main(void){};
+#endif

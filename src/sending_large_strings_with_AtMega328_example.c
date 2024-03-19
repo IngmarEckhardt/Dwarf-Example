@@ -4,12 +4,12 @@
 #include <stdio.h>
 
 //DwarfOS
-#include <setup.h>
-#include <mcu_clock.h>
-#include <uart_helper.h>
-#include <flash_helper.h>
-#include <heap_management_helper.h>
-#include <time.h>
+#include <dwarf-os/setup.h>
+#include <dwarf-os/mcu_clock.h>
+#include <dwarf-os/uart_helper.h>
+#include <dwarf-os/flash_helper.h>
+#include <dwarf-os/heap_management_helper.h>
+#include <dwarf-os/time.h>
 
 void setup(void);
 
@@ -67,6 +67,7 @@ void printToSerialOutput(void) {
             // getter far Progmem Strings, if you know which device your code is running, you don't need these ugly ifdef.
             // I always try to avoid it, but this example should run on every avr
 #ifdef __AVR_HAVE_ELPM__
+#include <avr/pgmspace.h>
             if(flashHelper) {
                 flashHelper->loadFarStringFromFlash(memoryString, pgm_get_far_address(memoryStringOnFlash));
             } else { return;}

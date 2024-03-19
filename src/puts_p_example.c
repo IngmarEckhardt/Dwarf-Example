@@ -5,12 +5,12 @@
 #include <stdio.h>
 
 //DwarfOS
-#include <setup.h>
-#include <mcu_clock.h>
-#include <uart_helper.h>
-#include <flash_helper.h>
-#include <heap_management_helper.h>
-#include <time.h>
+#include <dwarf-os/setup.h>
+#include <dwarf-os/mcu_clock.h>
+#include <dwarf-os/uart_helper.h>
+#include <dwarf-os/flash_helper.h>
+#include <dwarf-os/heap_management_helper.h>
+#include <dwarf-os/time.h>
 void setup(void);
 
 void adjustTo1Sec(void);
@@ -103,4 +103,6 @@ void setup(void) {
     uartHelper = dOS_initUartHelper();
     stdout = &myStdOut;
 }
+#else
+int main(void){};
 #endif
