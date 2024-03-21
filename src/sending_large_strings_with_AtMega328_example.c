@@ -63,35 +63,35 @@ void printToSerialOutput(void) {
 
 
         if (memoryString) {
-            FlashHelper * flashHelper = dOS_initFlashHelper();
+            FlashHelper * flashHelper = dOS_initFlashHelper(1);
             // getter far Progmem Strings, if you know which device your code is running, you don't need these ugly ifdef.
             // I always try to avoid it, but this example should run on every avr
 #ifdef __AVR_HAVE_ELPM__
 #include <avr/pgmspace.h>
             if(flashHelper) {
-                flashHelper->loadFarStringFromFlash(memoryString, pgm_get_far_address(memoryStringOnFlash));
+                flashHelper->loadString_P(memoryString, pgm_get_far_address(memoryStringOnFlash));
             } else { return;}
 #else // we use the getter that work with 16bit pointern, we check if init is failing just to make it a reflex.
             if (flashHelper) {
-                flashHelper->loadNearStringFromFlash(memoryString, memoryStringOnFlash);
+                flashHelper->loadString_P(memoryString, (uint32_t) memoryStringOnFlash);
             } else { return;}
 #endif
 
             if (lastTime % 2) {
                 char * actionString = malloc(LONG_LOCATION_126_STRING_LENGTH + 1);
 #ifdef __AVR_HAVE_ELPM__
-                flashHelper->loadFarStringFromFlash(actionString, pgm_get_far_address(longLocation_126))
+                flashHelper->loadString_P(actionString, pgm_get_far_address(longLocation_126))
 #else
-                flashHelper->loadNearStringFromFlash(actionString, longLocation_126);
+                flashHelper->loadString_P(actionString, (uint32_t) longLocation_126);
 #endif
                 printf("%s", actionString);
                 free(actionString);
             } else {
                 char * action2String = malloc(ACTION_142_STRING_LENGTH + 1);
 #ifdef __AVR_HAVE_ELPM__
-                flashHelper->loadFarStringFromFlash(action2String, pgm_get_far_address(action_142))
+                flashHelper->loadString_P(action2String, pgm_get_far_address(action_142))
 #else
-                flashHelper->loadNearStringFromFlash(action2String, action_142);
+                flashHelper->loadString_P(action2String, (uint32_t) action_142);
 #endif
                 printf("%s", action2String);
                 free(action2String);

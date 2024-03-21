@@ -67,8 +67,7 @@ void printToSerialOutput(void) {
         char * timestamp = ctime(NULL);
 
         if (memoryString && flashHelper && timestamp) {
-            // getting the near string isn't really safe with progmem usage way beyond 64kb, seem the placement from executables is prior to headers, we are very lucky
-            flashHelper->loadNearStringFromFlash(memoryString, memoryStringOnFlash);
+            flashHelper->loadString_P(memoryString, pgm_get_far_address(memoryStringOnFlash));
             printf(formatStr, timestamp, memoryString, memoryAmount);
 
             //32kB each string

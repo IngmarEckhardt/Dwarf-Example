@@ -60,11 +60,11 @@ void printToSerialOutput(void) {
         int16_t memoryAmount = heapHelper->getFreeMemory();
 
         char * memoryString = malloc(MEMORY_STRING_LENGTH + 1);
-        FlashHelper * flashHelper = dOS_initFlashHelper();
+        FlashHelper * flashHelper = dOS_initFlashHelper(1);
 
         if (memoryString && flashHelper) {
 
-            flashHelper->loadNearStringFromFlash(memoryString, memoryStringOnFlash);
+            flashHelper->loadString_P(memoryString,(uint32_t) memoryStringOnFlash);
 
             if (lastTime % 2) {
                 puts_P(longLocation_126);
