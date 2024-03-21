@@ -1,1 +1,4 @@
 /cmake-*
+/src/textfile-generator/cmake-build-debug-mingw-avr-7-3/
+/src/textfile-generator/cmake-build-debug-mingw-avr-7-3-elpm/
+/src/textfile-generator/cmake-build-release-mingw/

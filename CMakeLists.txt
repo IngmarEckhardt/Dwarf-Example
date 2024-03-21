@@ -104,5 +104,14 @@ target_include_directories(${PUTS_PF} PUBLIC ${INCL_PATH})
 target_link_libraries(${PUTS_PF} DwarfOS)
 set_target_properties(${PUTS_PF} PROPERTIES OUTPUT_NAME "${PUTS_PF}.elf")
 
+
+set(TEXTFILE ${PROJECT_NAME}_textfile)
+set(MCU atmega2560)
+add_executable(${TEXTFILE} ${SRC_FILES} "${SRC_PATH}/textfile_example.c" "${SRC_PATH}/text-files/action_with_indexs.c" "${SRC_PATH}/text-files/actions.c" "${SRC_PATH}/text-files/short_locations.c")
+target_include_directories(${TEXTFILE} PUBLIC ${INCL_PATH})
+target_link_libraries(${TEXTFILE} DwarfOS)
+set_target_properties(${TEXTFILE} PROPERTIES OUTPUT_NAME "${TEXTFILE}.elf")
+
+
 set_directory_properties(PROPERTIES
         ADDITIONAL_MAKE_CLEAN_FILES "${PROJECT_NAME}.hex;${PROJECT_NAME}.eeprom;${PROJECT_NAME}.lst")
