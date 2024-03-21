@@ -31,6 +31,7 @@ UartHelper * uartHelper;
 FlashHelper * flashHelper;
 
 const uint8_t adjustToSecondValue = ADJUST_TO_SECOND_VALUE;
+
 uint8_t lastTime;
 volatile uint8_t adjustCounter;
 
@@ -66,9 +67,8 @@ ISR(TIMER2_OVF_vect) { adjustCounter++; }
 const __attribute__((__progmem__)) char memoryStringOnFlash[MEMORY_STRING_LENGTH + 1] = ": free Memory is (byte): ";
 #define ERROR_STRING_LENGTH 19
 const __attribute__((__progmem__)) char errorStringOnFlash[ERROR_STRING_LENGTH + 1] = "FATAL ERROR! Code: ";
-
+static char * const formatString = "%s:%s%d\n";
 void printToSerialOutput(void) {
-    cli();
     HeapManagementHelper * heapHelper = dOS_initHeapManagementHelper();
     if (heapHelper) {
         int16_t memoryAmount = heapHelper->getFreeMemory();
@@ -78,23 +78,25 @@ void printToSerialOutput(void) {
         char * timestamp = ctime(NULL);
 
         if (memoryString && flashHelper && timestamp) {
-            flashHelper->putString_P((uint32_t) &memoryStringOnFlash);
             flashHelper->loadString_P(memoryString, (uint32_t) memoryStringOnFlash);
-
-            printf("Value is %lu",  (uint32_t) &memoryStringOnFlash);
-            printf("Value is %lu",  (uint32_t) memoryStringOnFlash);
-            printf( "%s:%s%d\n", timestamp, memoryString, memoryAmount);
+            printf(formatString, timestamp, memoryString, memoryAmount); //1977
         }
 
         putFileStrAction(flashHelper, 1);
-        putFileStrAction(flashHelper, 51);
-        putFileStrAction(flashHelper, 142);
+        memoryAmount = heapHelper->getFreeMemory();
+        printf(formatString, timestamp, memoryString, memoryAmount); //1977 no change for a short string from the array
 
+        putFileStrAction(flashHelper, 51);
+        memoryAmount = heapHelper->getFreeMemory();
+        printf(formatString, timestamp, memoryString, memoryAmount); //1969
+
+        putFileStrAction(flashHelper, 142);
+        memoryAmount = heapHelper->getFreeMemory();
+        printf(formatString, timestamp, memoryString, memoryAmount); // 1961 minus 8byte everytime for the long strings ??
         free(timestamp);
         free(memoryString);
     }
     free(heapHelper);
-    sei();
 }
 
 
