@@ -73,7 +73,7 @@ ISR(TIMER2_OVF_vect) { adjustCounter++; }
 const __attribute__((__progmem__)) char memoryStringOnFlash[MEMORY_STRING_LENGTH + 1] = ": free Memory is (byte): ";
 #define ERROR_STRING_LENGTH 19
 const __attribute__((__progmem__)) char errorStringOnFlash[ERROR_STRING_LENGTH + 1] = "FATAL ERROR! Code: ";
-const char formatStr[] = "%s:%s%d\n";
+static char * const formatString = "%s:%s%d\n";
 
 void printToSerialOutput(void) {
     HeapManagementHelper * heapHelper = dOS_initHeapManagementHelper();
@@ -86,7 +86,7 @@ void printToSerialOutput(void) {
 
         if (memoryString && flashHelper && timestamp) {
             flashHelper->loadString_P(memoryString, pgm_get_far_address(memoryStringOnFlash));
-            printf(formatStr, timestamp, memoryString, memoryAmount);
+            printf(formatString, timestamp, memoryString, memoryAmount);
         }
 
         putFileStrAction(flashHelper, 1);
@@ -95,7 +95,23 @@ void printToSerialOutput(void) {
         if (longLocation) {
             printf("%s", longLocation);
         }
+        free(longLocation);
+        if (memoryString && flashHelper && timestamp) {
+            flashHelper->loadString_P(memoryString, (uint32_t) memoryStringOnFlash);
+            printf(formatString, timestamp, memoryString, memoryAmount); //1977
+        }
 
+        putFileStrAction(flashHelper, 1);
+        memoryAmount = heapHelper->getFreeMemory();
+        printf(formatString, timestamp, memoryString, memoryAmount); //1977 no change for a short string from the array
+
+        putFileStrAction(flashHelper, 51);
+        memoryAmount = heapHelper->getFreeMemory();
+        printf(formatString, timestamp, memoryString, memoryAmount); //1969
+
+        putFileStrAction(flashHelper, 142);
+        memoryAmount = heapHelper->getFreeMemory();
+        printf(formatString, timestamp, memoryString, memoryAmount); // 1961 minus 8byte everytime for the long strings ??
 
         free(timestamp);
         free(memoryString);
