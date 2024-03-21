@@ -19,9 +19,15 @@ project(${NAME} LANGUAGES C)
 # set(CMAKE_C_COMPILER avr-gcc)
 
 # Toolchain path for AVR objcopy and size, change the path and file extensions to your environment
-set(TOOLCHAIN_PATH "C:/Program Files/JetBrains/CLion 2023.3.4/bin/avr8-gnu-toolchain-win32_x86_64/bin/")
-set(AVR_OBJCOPY "${TOOLCHAIN_PATH}avr-objcopy.exe")
-set(AVR_SIZE "${TOOLCHAIN_PATH}avr-size.exe")
+if (NOT DEFINED TOOLCHAIN_PATH)
+    set(TOOLCHAIN_PATH "C:/Program Files/JetBrains/CLion 2023.3.4/bin/avr8-gnu-toolchain-win32_x86_64/bin/")
+endif ()
+if (NOT DEFINED FILE_EXT)
+    set(FILE_EXT ".exe")
+endif ()
+set(AVR_OBJCOPY "${TOOLCHAIN_PATH}avr-objcopy${FILE_EXT}")
+set(AVR_OBJDUMP "${TOOLCHAIN_PATH}avr-objdump${FILE_EXT}")
+set(AVR_SIZE "${TOOLCHAIN_PATH}avr-size${FILE_EXT}")
 
 # compiler flags
 set(CSTANDARD "-std=gnu99")
@@ -116,6 +122,9 @@ add_executable(${TEXTFILE_328} ${SRC_FILES} "${SRC_PATH}/textfile_example_328.c"
 target_include_directories(${TEXTFILE_328} PUBLIC ${INCL_PATH})
 target_link_libraries(${TEXTFILE_328} DwarfOS)
 set_target_properties(${TEXTFILE_328} PROPERTIES OUTPUT_NAME "${TEXTFILE_328}.elf")
+
+# show the complete content of the flash memory from the last version
+add_custom_target(objdump "${AVR_OBJDUMP}" -h -s "${TEXTFILE_328}.elf" > flash_memory_content.txt)
 
 set_directory_properties(PROPERTIES
         ADDITIONAL_MAKE_CLEAN_FILES "${PROJECT_NAME}.hex;${PROJECT_NAME}.eeprom;${PROJECT_NAME}.lst")
