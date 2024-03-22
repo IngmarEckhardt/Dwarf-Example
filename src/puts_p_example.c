@@ -1,4 +1,5 @@
 #ifndef __AVR_HAVE_ELPM__ // example dont uses far pointers, works only for devices with < 64kB
+
 #include <avr/sleep.h>
 #include <avr/interrupt.h>
 #include <avr/io.h>
@@ -11,11 +12,15 @@
 #include <dwarf-os/flash_helper.h>
 #include <dwarf-os/heap_management_helper.h>
 #include <dwarf-os/time.h>
+
 void setup(void);
 
 void adjustTo1Sec(void);
 
 void printToSerialOutput(void);
+
+void freeAll(HeapManagementHelper * helper, FlashHelper * pHelper, char * memoryString, char * formatString,
+             char * timeStamp);
 
 McuClock * mcuClock;
 UartHelper * uartHelper;
@@ -37,7 +42,6 @@ int main(void) {
         if ((uint8_t) time(NULL) != lastTime) {
 
             lastTime = time(NULL);
-
             printToSerialOutput();
 
         }
@@ -47,8 +51,6 @@ int main(void) {
 ISR(TIMER2_OVF_vect) { adjustCounter++; }
 
 // example placement of string in Progmem
-#define MEMORY_STRING_LENGTH 26
-const __attribute__((__progmem__)) char memoryStringOnFlash[MEMORY_STRING_LENGTH] = ": free Memory is (byte): ";
 #define LONG_LOCATION_126_STRING_LENGTH 1300
 const __attribute__((__progmem__)) char longLocation_126[LONG_LOCATION_126_STRING_LENGTH] = "You are on the edge of a breath-taking view.  Far below you is an \nactive volcano, from which great gouts of molten lava come surging \nout, cascading back down into the depths. The glowing rock fills the \nfarthest reaches of the cavern with a blood-red glare, giving \neverything an eerie, macabre appearance.\nThe air is filled with flickering sparks of ash and a heavy smell of \nbrimstone.  The walls are hot to the touch, and the thundering of the \nvolcano drowns out all other sounds.  Embedded in the jagged roof far \noverhead are myriad formations composed of pure white alabaster, which \nscatter their murky light into sinister apparitions upon the walls.\nTo one side is a deep gorge, filled with a bizarre chaos of tortured \nrock which seems to have been crafted by the Devil Himself.  An \nimmense river of fire crashes out from the depths of the volcano, \nburns its way through the gorge, and plummets into a bottomless pit \nfar off to your left.  \nTo the right, an immense geyser of blistering steam erupts \ncontinuously from a barren island in the center of a sulfurous lake, \nwhich bubbles ominously. The far right wall is aflame with an \nincandescence of its own, which lends an additional infernal splendor \nto the already hellish scene.  \nA dark, foreboding passage exits to the south.\n";
 #define ACTION_142_STRING_LENGTH 1430
@@ -58,27 +60,27 @@ void printToSerialOutput(void) {
     HeapManagementHelper * heapHelper = dOS_initHeapManagementHelper();
     if (heapHelper) {
         int16_t memoryAmount = heapHelper->getFreeMemory();
+        FlashHelper * flashHelper = dOS_initFlashHelper(0);
+        char * timestamp = ctime(NULL);
+        char * memoryString = flashHelper->getOrPutDosMessage(FREE_MEMORY_STRING, 1, flashHelper);
+        char * formatString = flashHelper->getOrPutDosMessage(TIMESTAMP_STRING_NUMBER_LF_FORMATSTRING, 1, flashHelper);
 
-        char * memoryString = malloc(MEMORY_STRING_LENGTH + 1);
-        FlashHelper * flashHelper = dOS_initFlashHelper(1);
-
-        if (memoryString && flashHelper) {
-
-            flashHelper->loadString_P(memoryString,(uint32_t) memoryStringOnFlash);
-
-            if (lastTime % 2) {
-                puts_P(longLocation_126);
-            } else {
-                puts_P(action_142);
-            }
-            char * timestamp = ctime(NULL);
-            printf("%s:%s%d\n", timestamp, memoryString, memoryAmount);
-            free(timestamp);
-            free(flashHelper);
+        if (!(memoryString && formatString && flashHelper && timestamp)) {
+            freeAll(heapHelper, flashHelper, memoryString, formatString, timestamp);
+            return;
         }
-        free(memoryString);
+        printf(formatString, timestamp, memoryString, memoryAmount);
+
+        if (lastTime % 2) {
+            puts_P(longLocation_126);
+        } else {
+            puts_P(action_142);
+        }
+        
+        memoryAmount = heapHelper->getFreeMemory();
+        printf(formatString, timestamp, memoryString, memoryAmount);
+        freeAll(heapHelper, flashHelper, memoryString, formatString, timestamp);
     }
-    free(heapHelper);
 }
 
 void adjustTo1Sec(void) {
@@ -103,6 +105,7 @@ void setup(void) {
     uartHelper = dOS_initUartHelper();
     stdout = &myStdOut;
 }
+
 #else
 int main(void){};
 #endif
