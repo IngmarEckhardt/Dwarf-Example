@@ -65,7 +65,6 @@ void printToSerialOutput(void) {
         if (!(memoryString && formatString && flashHelper)) {
             freeAll(heapHelper, flashHelper, memoryString, formatString);
             return;
-
         }
         if (lastTime % 2) {
             char * actionString = malloc(LONG_LOCATION_126_STRING_LENGTH + 1);
@@ -81,6 +80,7 @@ void printToSerialOutput(void) {
         char * timestamp = ctime(NULL);
         printf("%s:%s%d\n", timestamp, memoryString, memoryAmount);
         freeAll(heapHelper, flashHelper, memoryString, formatString);
+        free(timestamp);
     }
 }
 

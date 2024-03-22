@@ -118,7 +118,7 @@ target_link_libraries(${TEXTFILE} DwarfOS)
 set_target_properties(${TEXTFILE} PROPERTIES OUTPUT_NAME "${TEXTFILE}.elf")
 
 set(TEXTFILE_328 ${PROJECT_NAME}_textfile_328)
-add_executable(${TEXTFILE_328} ${SRC_FILES} "${SRC_PATH}/textfile_example_328.c" "${SRC_PATH}/text-files/actions_near_pgm_getter.c")
+add_executable(${TEXTFILE_328} ${SRC_FILES} "${SRC_PATH}/textfile_example_328.c" "${SRC_PATH}/text-files/actions.c")
 target_include_directories(${TEXTFILE_328} PUBLIC ${INCL_PATH})
 target_link_libraries(${TEXTFILE_328} DwarfOS)
 set_target_properties(${TEXTFILE_328} PROPERTIES OUTPUT_NAME "${TEXTFILE_328}.elf")

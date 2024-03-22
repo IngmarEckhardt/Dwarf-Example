@@ -1,7 +1,6 @@
 //#include "short_locations.h"
 #include <stdlib.h>
-#include <avr/pgmspace.h>
-#include "dwarf-os/flash_helper.h"
+#include <dwarf-os/flash_helper.h>
 
 #define SHORT_LOCATION_1_STRING_LENGTH 12
 #define SHORT_LOCATION_2_STRING_LENGTH 52
@@ -150,8 +149,8 @@ const __attribute__((__progmem__)) SHORT_LOCATION_3 shortLocations_3[AMOUNT_SHOR
 
 
 #define LOAD_FROM(NUM) \
-	stringToReturn = helper->createFromFile_P(&(TextFile) { \
-		.pointerToArray = pgm_get_far_address(shortLocations_##NUM), \
+	stringToReturn = helper->createFileString_P(&(TextFile) { \
+		.pointerToArray = addressOf(shortLocations_##NUM), \
 		.maxLengthOfStrings = SHORT_LOCATION_##NUM##_STRING_LENGTH, \
 		.sizeOfIndexArray = SHORT_LOCATION_##NUM##_INDEX_ARRAY_SIZE, \
 		.amountOfEntries = AMOUNT_SHORT_LOCATION_##NUM##_STRINGS, \
@@ -160,7 +159,7 @@ const __attribute__((__progmem__)) SHORT_LOCATION_3 shortLocations_3[AMOUNT_SHOR
 
 #define PUT_FROM(NUM) \
 	return helper->putFileString_P(&(TextFile) { \
-		.pointerToArray = pgm_get_far_address(shortLocations_##NUM), \
+		.pointerToArray = addressOf(shortLocations_##NUM), \
 		.maxLengthOfStrings = SHORT_LOCATION_##NUM##_STRING_LENGTH, \
 		.sizeOfIndexArray = SHORT_LOCATION_##NUM##_INDEX_ARRAY_SIZE, \
 		.amountOfEntries = AMOUNT_SHORT_LOCATION_##NUM##_STRINGS, \

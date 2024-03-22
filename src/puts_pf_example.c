@@ -1,4 +1,5 @@
 #ifdef __AVR_HAVE_ELPM__
+
 #include <avr/sleep.h>
 #include <avr/interrupt.h>
 #include <avr/io.h>
@@ -22,6 +23,9 @@ void adjustTo1Sec(void);
 
 void printToSerialOutput(void);
 
+void freeAll(HeapManagementHelper * helper, FlashHelper * pHelper, char * memoryString, char * formatString,
+             char * timeStamp);
+
 McuClock * mcuClock;
 UartHelper * uartHelper;
 
@@ -41,61 +45,48 @@ int main(void) {
         if ((uint8_t) time(NULL) != lastTime) {
 
             lastTime = time(NULL);
-
             printToSerialOutput();
 
         }
     }
 }
 
-
 ISR(TIMER2_OVF_vect) { adjustCounter++; }
-
-// example placement of string in Progmem
-#define MEMORY_STRING_LENGTH 26
-const __attribute__((__progmem__)) char memoryStringOnFlash[MEMORY_STRING_LENGTH] = ": free Memory is (byte): ";
-
-const char formatStr[] = "%s:%s%d\n";
 
 void printToSerialOutput(void) {
     HeapManagementHelper * heapHelper = dOS_initHeapManagementHelper();
     if (heapHelper) {
         int16_t memoryAmount = heapHelper->getFreeMemory();
-
-        char * memoryString = malloc(MEMORY_STRING_LENGTH + 1);
-        FlashHelper * flashHelper = dOS_initFlashHelper();
+        FlashHelper * flashHelper = dOS_initFlashHelper(0);
         char * timestamp = ctime(NULL);
-
-        if (memoryString && flashHelper && timestamp) {
-            flashHelper->loadString_P(memoryString, pgm_get_far_address(memoryStringOnFlash));
-            printf(formatStr, timestamp, memoryString, memoryAmount);
-
-            //32kB each string
-            puts_PF(pgm_get_far_address(loremIpsum1));
-            //no changes in the situation behind this first check
-            memoryAmount = heapHelper->getFreeMemory();
-            printf(formatStr, timestamp, memoryString, memoryAmount);
-
-            puts_PF(pgm_get_far_address(loremIpsum2));
-            puts_PF(pgm_get_far_address(loremIpsum3));
-            puts_PF(pgm_get_far_address(loremIpsum4));
-            puts_PF(pgm_get_far_address(loremIpsum5));
-            puts_PF(pgm_get_far_address(loremIpsum6));
-            puts_PF(pgm_get_far_address(loremIpsum7));
-
-            // still no changes, but why not, we check again
-            memoryAmount = heapHelper->getFreeMemory();
-            printf(formatStr, timestamp, memoryString, memoryAmount);
-
-
+        char * memoryString = flashHelper->getOrPutDosMessage(FREE_MEMORY_STRING, 1, flashHelper);
+        char * formatString = flashHelper->getOrPutDosMessage(TIMESTAMP_STRING_NUMBER_LF_FORMATSTRING, 1, flashHelper);
+        if (!(memoryString && formatString && flashHelper && timestamp)) {
+            freeAll(heapHelper, flashHelper, memoryString, formatString, timestamp);
+            return;
         }
-        free(timestamp);
-        free(flashHelper);
-        free(memoryString);
-    }
-    free(heapHelper);
-}
 
+        printf(formatString, timestamp, memoryString, memoryAmount);
+
+        //32kB each string
+        puts_PF(pgm_get_far_address(loremIpsum1));
+        //no changes in the situation behind this first check
+        memoryAmount = heapHelper->getFreeMemory();
+        printf(formatString, timestamp, memoryString, memoryAmount);
+
+        puts_PF(pgm_get_far_address(loremIpsum2));
+        puts_PF(pgm_get_far_address(loremIpsum3));
+        puts_PF(pgm_get_far_address(loremIpsum4));
+        puts_PF(pgm_get_far_address(loremIpsum5));
+        puts_PF(pgm_get_far_address(loremIpsum6));
+        puts_PF(pgm_get_far_address(loremIpsum7));
+
+        // still no changes, but why not, we check again
+        memoryAmount = heapHelper->getFreeMemory();
+        printf(formatString, timestamp, memoryString, memoryAmount);
+        freeAll(heapHelper, flashHelper, memoryString, formatString, timestamp);
+    }
+}
 
 void adjustTo1Sec(void) {
     if (adjustCounter == adjustToSecondValue) {
@@ -119,6 +110,16 @@ void setup(void) {
     uartHelper = dOS_initUartHelper();
     stdout = &myStdOut;
 }
+
+void freeAll(HeapManagementHelper * helper, FlashHelper * pHelper, char * memoryString, char * formatString,
+             char * timeStamp) {
+    free(helper);
+    free(pHelper);
+    free(memoryString);
+    free(formatString);
+    free(timeStamp);
+}
+
 #else
 int main(void){};
 #endif
