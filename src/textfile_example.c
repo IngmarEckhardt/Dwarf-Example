@@ -1,11 +1,8 @@
 #ifdef __AVR_HAVE_ELPM__ // Example uses way more than 64kb Program Memory
-
 #include <avr/sleep.h>
 #include <avr/interrupt.h>
 #include <avr/io.h>
 #include <stdio.h>
-#include <avr/pgmspace.h>
-
 //DwarfOS
 #include <dwarf-os/setup.h>
 #include <dwarf-os/mcu_clock.h>
@@ -51,7 +48,6 @@ int main(void) {
         if ((uint8_t) time(NULL) != lastTime) {
 
             lastTime = time(NULL);
-
             printToSerialOutput();
 
         }
@@ -64,21 +60,22 @@ ISR(TIMER2_OVF_vect) { adjustCounter++; }
 #define ERROR_STRING_LENGTH 19
 const __attribute__((__progmem__)) char errorStringOnFlash[ERROR_STRING_LENGTH + 1] = "FATAL ERROR! Code: ";
 
-
 void printToSerialOutput(void) {
     HeapManagementHelper * heapHelper = dOS_initHeapManagementHelper();
     if (heapHelper) {
+
         int16_t memoryAmount = heapHelper->getFreeMemory();
-
         char * memoryString = flashHelper->getOrPutDosMessage(FREE_MEMORY_STRING, 1, flashHelper);
-
         char * timestamp = ctime(NULL);
         char * formatString = flashHelper->getOrPutDosMessage(TIMESTAMP_STRING_NUMBER_LF_FORMATSTRING, 1, flashHelper);
 
         if (!(memoryString && flashHelper && timestamp && formatString)) {
             freeAll(heapHelper, flashHelper, memoryString, formatString);
+            return;
         }
+
         printf(formatString, timestamp, memoryString, memoryAmount);
+
         putFileStrAction(flashHelper, 1);
 
         char * action2 = loadActionWithIndex(flashHelper, 2);
@@ -86,24 +83,22 @@ void printToSerialOutput(void) {
         free(action2);
 
         memoryAmount = heapHelper->getFreeMemory();
-        printf(formatString, timestamp, memoryString, memoryAmount); //1977
+        printf(formatString, timestamp, memoryString, memoryAmount);
 
         putFileStrShortLocation(flashHelper, 1);
         memoryAmount = heapHelper->getFreeMemory();
-        printf(formatString, timestamp, memoryString, memoryAmount); //1977 no change for a short string from the array
+        printf(formatString, timestamp, memoryString, memoryAmount);
 
         putFileStrAction(flashHelper, 51);
         memoryAmount = heapHelper->getFreeMemory();
-        printf(formatString, timestamp, memoryString, memoryAmount); //1969
+        printf(formatString, timestamp, memoryString, memoryAmount);
 
         putFileStrAction(flashHelper, 142);
         memoryAmount = heapHelper->getFreeMemory();
-        printf(formatString, timestamp, memoryString,
-               memoryAmount); // 1961 minus 8byte everytime for the long strings ??
+        printf(formatString, timestamp, memoryString, memoryAmount);
 
         freeAll(heapHelper, flashHelper, memoryString, formatString);
     }
-    free(heapHelper);
 }
 
 
@@ -130,9 +125,7 @@ void setup(void) {
     stdout = &myStdOut;
 
     flashHelper = dOS_initFlashHelper(0);
-
     if (!flashHelper) { puts_PF(pgm_get_far_address(errorStringOnFlash)); }
-
 }
 
 void freeAll(HeapManagementHelper * heapHelper, FlashHelper * flshHelper, char * memoryString, char * formatString) {
@@ -141,7 +134,6 @@ void freeAll(HeapManagementHelper * heapHelper, FlashHelper * flshHelper, char *
     free(memoryString);
     free(formatString);
 }
-
 #else
 int main(void){};
 #endif

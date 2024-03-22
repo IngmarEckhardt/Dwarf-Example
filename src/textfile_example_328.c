@@ -1,31 +1,24 @@
-
 #include <avr/sleep.h>
 #include <avr/interrupt.h>
 #include <avr/io.h>
 #include <stdio.h>
-#include <avr/pgmspace.h>
-
 //DwarfOS
 #include <dwarf-os/setup.h>
 #include <dwarf-os/mcu_clock.h>
 #include <dwarf-os/uart_helper.h>
 #include <dwarf-os/flash_helper.h>
 #include <dwarf-os/heap_management_helper.h>
-#include <dwarf-os/stdio.h>
 #include <dwarf-os/time.h>
 
 //KISS Deklarations instead of a header
-char * loadAction(FlashHelper * helper, uint8_t actionNumber);
 int16_t putFileStrAction(FlashHelper * helper, uint8_t actionNumber);
-
 
 void setup(void);
 
 void adjustTo1Sec(void);
 
 void printToSerialOutput(void);
-
-
+void freeAll( HeapManagementHelper * heapManagementHelper, FlashHelper * pHelper, char * memoryString, char * formatString);
 McuClock * mcuClock;
 UartHelper * uartHelper;
 FlashHelper * flashHelper;
@@ -34,7 +27,6 @@ const uint8_t adjustToSecondValue = ADJUST_TO_SECOND_VALUE;
 
 uint8_t lastTime;
 volatile uint8_t adjustCounter;
-
 
 
 int main(void) {
@@ -50,37 +42,33 @@ int main(void) {
         if ((uint8_t) time(NULL) != lastTime) {
 
             lastTime = time(NULL);
-
             printToSerialOutput();
-
         }
     }
 }
 
-
-
-
 ISR(TIMER2_OVF_vect) { adjustCounter++; }
 
 // example placement of string in Progmem
-#define MEMORY_STRING_LENGTH 25
-const __attribute__((__progmem__)) char memoryStringOnFlash[MEMORY_STRING_LENGTH + 1] = ": free Memory is (byte): ";
 #define ERROR_STRING_LENGTH 19
 const __attribute__((__progmem__)) char errorStringOnFlash[ERROR_STRING_LENGTH + 1] = "FATAL ERROR! Code: ";
-static char * const formatString = "%s:%s%d\n";
+
+
+
 void printToSerialOutput(void) {
     HeapManagementHelper * heapHelper = dOS_initHeapManagementHelper();
     if (heapHelper) {
         int16_t memoryAmount = heapHelper->getFreeMemory();
-
-        char * memoryString = malloc(MEMORY_STRING_LENGTH + 1);
-
+        char * memoryString = flashHelper->getOrPutDosMessage(FREE_MEMORY_STRING, 1, flashHelper);
+        char * formatString = flashHelper->getOrPutDosMessage(TIMESTAMP_STRING_NUMBER_LF_FORMATSTRING, 1, flashHelper);
         char * timestamp = ctime(NULL);
 
-        if (memoryString && flashHelper && timestamp) {
-            flashHelper->loadString_P(memoryString, (uint32_t) memoryStringOnFlash);
-            printf(formatString, timestamp, memoryString, memoryAmount); //1977
+        if (!(memoryString && flashHelper && timestamp && formatString)) {
+            freeAll(heapHelper, flashHelper, memoryString, formatString);
+            return;
         }
+
+        printf(formatString, timestamp, memoryString, memoryAmount); //1977
 
         putFileStrAction(flashHelper, 1);
         memoryAmount = heapHelper->getFreeMemory();
@@ -93,10 +81,9 @@ void printToSerialOutput(void) {
         putFileStrAction(flashHelper, 142);
         memoryAmount = heapHelper->getFreeMemory();
         printf(formatString, timestamp, memoryString, memoryAmount); // 1961 minus 8byte everytime for the long strings ??
-        free(timestamp);
-        free(memoryString);
+
+        freeAll(heapHelper,flashHelper, memoryString, formatString);
     }
-    free(heapHelper);
 }
 
 
@@ -124,6 +111,18 @@ void setup(void) {
 
     flashHelper = dOS_initFlashHelper(0);
 
-    if (!flashHelper) { flashHelper->putString_P((uint32_t)errorStringOnFlash); }
+    //only adjustment that is needed to make the example safely run on both kind of devices
+#ifdef __AVR_HAVE_ELPM__
+#include <dwarf-os/stdio.h>
+    if (!flashHelper) { puts_PF(addressOf(errorStringOnFlash)); }
+#else
+    if (!flashHelper) { puts_P(errorStringOnFlash); }
+#endif
+}
 
+void freeAll( HeapManagementHelper * heapManagementHelper, FlashHelper * pHelper, char * memoryString, char * const formatString) {
+    free(heapManagementHelper);
+    free(pHelper);
+    free(memoryString);
+    free(formatString);
 }

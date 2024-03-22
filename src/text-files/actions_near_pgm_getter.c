@@ -235,8 +235,8 @@ const __attribute__((__progmem__)) char action_142[ACTION_142_STRING_LENGTH] = "
 
 
 #define LOAD_FROM(NUM) \
-	stringToReturn = helper->createFromFile_P(&(TextFile) { \
-		.pointerToArray = (uint32_t) actions_##NUM, \
+	stringToReturn = helper->createFileString_P(&(TextFile) { \
+		.pointerToArray =  addressOf(actions_##NUM), \
 		.maxLengthOfStrings = ACTION_##NUM##_STRING_LENGTH, \
 		.sizeOfIndexArray = 0, \
 		.amountOfEntries = AMOUNT_ACTION_##NUM##_STRINGS, \
@@ -245,7 +245,7 @@ const __attribute__((__progmem__)) char action_142[ACTION_142_STRING_LENGTH] = "
 
 #define PUT_FROM(NUM) \
 	return helper->putFileString_P(&(TextFile) { \
-		.pointerToArray = (uint32_t) actions_##NUM, \
+		.pointerToArray = addressOf(actions_##NUM), \
 		.maxLengthOfStrings = ACTION_##NUM##_STRING_LENGTH, \
 		.sizeOfIndexArray = 0, \
 		.amountOfEntries = AMOUNT_ACTION_##NUM##_STRINGS, \
@@ -256,11 +256,11 @@ char * loadAction(FlashHelper * helper, uint8_t actionNumber) {
 
 	if (actionNumber == 51) {
 		stringToReturn = (char *) malloc(ACTION_51_STRING_LENGTH);
-		helper->loadString_P(stringToReturn,  (uint32_t) action_51);
+		helper->copyString_P(stringToReturn,  addressOf(action_51));
 	}
 	if (actionNumber == 142) {
 		stringToReturn = (char *) malloc(ACTION_142_STRING_LENGTH);
-		helper->loadString_P(stringToReturn,  (uint32_t) action_142);
+		helper->copyString_P(stringToReturn, addressOf(action_142));
 	}
 	LOAD_FROM(1)
 	LOAD_FROM(2)
@@ -271,10 +271,10 @@ char * loadAction(FlashHelper * helper, uint8_t actionNumber) {
 
 int16_t putFileStrAction(FlashHelper * helper, uint8_t actionNumber) {
 	if (actionNumber == 51) {
-		helper->putString_P( (uint32_t) action_51);
+		helper->putString_P( addressOf(action_51));
 	}
 	if (actionNumber == 142) {
-		helper->putString_P( (uint32_t) action_142);
+		helper->putString_P( addressOf(action_142));
 	}
 	PUT_FROM(1)
 	PUT_FROM(2)
