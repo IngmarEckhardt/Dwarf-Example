@@ -1,4 +1,4 @@
-#ifdef __AVR_HAVE_ELPM__
+#ifdef __AVR_HAVE_ELPM__ //example uses way mor than 64kB Program Memory
 
 #include <avr/sleep.h>
 #include <avr/interrupt.h>

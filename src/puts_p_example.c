@@ -1,5 +1,3 @@
-#ifndef __AVR_HAVE_ELPM__ // example dont uses far pointers, works only for devices with < 64kB
-
 #include <avr/sleep.h>
 #include <avr/interrupt.h>
 #include <avr/io.h>
@@ -107,7 +105,3 @@ void freeAll(HeapManagementHelper * helper, FlashHelper * pHelper, char * memory
     free(formatString);
     free(timeStamp);
 }
-
-#else
-int main(void){};
-#endif
