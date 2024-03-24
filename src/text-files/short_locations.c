@@ -1,6 +1,6 @@
 //#include "short_locations.h"
 #include <stdlib.h>
-#include <dwarf-os/flash_helper.h>
+#include "dwarf-os/flash_helper.h"
 
 #define SHORT_LOCATION_1_STRING_LENGTH 12
 #define SHORT_LOCATION_2_STRING_LENGTH 52
@@ -158,12 +158,12 @@ const __attribute__((__progmem__)) SHORT_LOCATION_3 shortLocations_3[AMOUNT_SHOR
 	if (stringToReturn != NULL) { return stringToReturn; }
 
 #define PUT_FROM(NUM) \
-	return helper->putFileString_P(&(TextFile) { \
-		.pointerToArray = addressOf(shortLocations_##NUM), \
+	if (helper->putFileString_P(&(TextFile) { \
+		.pointerToArray =  addressOf(shortLocations_##NUM), \
 		.maxLengthOfStrings = SHORT_LOCATION_##NUM##_STRING_LENGTH, \
 		.sizeOfIndexArray = SHORT_LOCATION_##NUM##_INDEX_ARRAY_SIZE, \
 		.amountOfEntries = AMOUNT_SHORT_LOCATION_##NUM##_STRINGS, \
-	}, shortLocationNumber, helper); \
+	}, shortLocationNumber, helper) == 0) { return 0;}; \
 
 char * loadShortLocation(FlashHelper * helper, uint8_t shortLocationNumber) {
 	char * stringToReturn = NULL;
@@ -180,7 +180,7 @@ int16_t putFileStrShortLocation(FlashHelper * helper, uint8_t shortLocationNumbe
 	PUT_FROM(2)
 	PUT_FROM(3)
 
-	return 0;
+	return -1;
 }
 
 //getter function expects an initialized instance of FlashHelper as reachable global reference

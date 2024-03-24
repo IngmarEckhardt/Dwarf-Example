@@ -1,6 +1,6 @@
 //#include "actions.h"
 #include <stdlib.h>
-#include <dwarf-os/flash_helper.h>
+#include "dwarf-os/flash_helper.h"
 
 #define ACTION_1_STRING_LENGTH 52
 #define ACTION_2_STRING_LENGTH 237
@@ -243,12 +243,12 @@ const __attribute__((__progmem__)) char action_142[ACTION_142_STRING_LENGTH] = "
 	if (stringToReturn != NULL) { return stringToReturn; }
 
 #define PUT_FROM(NUM) \
-	return helper->putFileString_P(&(TextFile) { \
-		.pointerToArray = addressOf(actions_##NUM), \
+	if (helper->putFileString_P(&(TextFile) { \
+		.pointerToArray =  addressOf(actions_##NUM), \
 		.maxLengthOfStrings = ACTION_##NUM##_STRING_LENGTH, \
 		.sizeOfIndexArray = 0, \
 		.amountOfEntries = AMOUNT_ACTION_##NUM##_STRINGS, \
-	}, actionNumber, helper); \
+	}, actionNumber, helper) == 0) { return 0;}; \
 
 char * loadAction(FlashHelper * helper, uint8_t actionNumber) {
 	char * stringToReturn = NULL;
@@ -270,16 +270,16 @@ char * loadAction(FlashHelper * helper, uint8_t actionNumber) {
 
 int16_t putFileStrAction(FlashHelper * helper, uint8_t actionNumber) {
 	if (actionNumber == 51) {
-		helper->putString_P(addressOf(action_51));
+		return helper->putString_P(addressOf(action_51));
 	}
 	if (actionNumber == 142) {
-		helper->putString_P(addressOf(action_142));
+		return helper->putString_P(addressOf(action_142));
 	}
 	PUT_FROM(1)
 	PUT_FROM(2)
 	PUT_FROM(3)
 
-	return 0;
+	return -1;
 }
 
 //getter function expects an initialized instance of FlashHelper as reachable global reference

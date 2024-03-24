@@ -1,6 +1,6 @@
 //#include "action_with_indexs.h"
 #include <stdlib.h>
-#include <dwarf-os/flash_helper.h>
+#include "dwarf-os/flash_helper.h"
 
 #define ACTION_WITH_INDEX_1_STRING_LENGTH 52
 #define ACTION_WITH_INDEX_2_STRING_LENGTH 237
@@ -249,12 +249,12 @@ const __attribute__((__progmem__)) char actionWithIndex_142[ACTION_WITH_INDEX_14
 	if (stringToReturn != NULL) { return stringToReturn; }
 
 #define PUT_FROM(NUM) \
-	return helper->putFileString_P(&(TextFile) { \
-		.pointerToArray = addressOf(actionWithIndexs_##NUM), \
+	if (helper->putFileString_P(&(TextFile) { \
+		.pointerToArray =  addressOf(actionWithIndexs_##NUM), \
 		.maxLengthOfStrings = ACTION_WITH_INDEX_##NUM##_STRING_LENGTH, \
 		.sizeOfIndexArray = ACTION_WITH_INDEX_##NUM##_INDEX_ARRAY_SIZE, \
 		.amountOfEntries = AMOUNT_ACTION_WITH_INDEX_##NUM##_STRINGS, \
-	}, actionWithIndexNumber, helper); \
+	}, actionWithIndexNumber, helper) == 0) { return 0;}; \
 
 char * loadActionWithIndex(FlashHelper * helper, uint8_t actionWithIndexNumber) {
 	char * stringToReturn = NULL;
@@ -276,16 +276,16 @@ char * loadActionWithIndex(FlashHelper * helper, uint8_t actionWithIndexNumber) 
 
 int16_t putFileStrActionWithIndex(FlashHelper * helper, uint8_t actionWithIndexNumber) {
 	if (actionWithIndexNumber == 51) {
-		helper->putString_P(addressOf(actionWithIndex_51));
+		return helper->putString_P(addressOf(actionWithIndex_51));
 	}
 	if (actionWithIndexNumber == 142) {
-		helper->putString_P(addressOf(actionWithIndex_142));
+		return helper->putString_P(addressOf(actionWithIndex_142));
 	}
 	PUT_FROM(1)
 	PUT_FROM(2)
 	PUT_FROM(3)
 
-	return 0;
+	return -1;
 }
 
 //getter function expects an initialized instance of FlashHelper as reachable global reference
